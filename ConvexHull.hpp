@@ -25,7 +25,7 @@ namespace quickhull {
 		ConvexHull() {}
 
 		// Construct vertex and index buffers from half edge mesh and pointcloud
-		ConvexHull(const Mesh<T>& mesh, const VertexDataSource<T>& pointCloud, bool CCW) {
+		ConvexHull(const Mesh<T>& mesh, const VertexDataSource<T>& pointCloud, bool CCW, bool pointCloudRelative = false) {
 			std::vector<bool> faceProcessed(mesh.m_faces.size(),false);
 			std::vector<size_t> faceStack;
 			std::unordered_map<size_t,size_t> vertexIndexMapping; // Map vertex indices from original point cloud to the new mesh vertex indices
@@ -42,46 +42,81 @@ namespace quickhull {
 			const size_t finalMeshFaceCount = mesh.m_faces.size() - mesh.m_disabledFaces.size();
 			m_indices.reserve(finalMeshFaceCount*3);
 
-			while (faceStack.size()) {
-				auto it = faceStack.end()-1;
-				size_t top = *it;
-				assert(!mesh.m_faces[top].isDisabled());
-				faceStack.erase(it);
-				if (faceProcessed[top]) {
-					continue;
-				}
-				else {
-					auto halfEdges = mesh.getHalfEdgeIndicesOfFace(mesh.m_faces[top]);
-					size_t adjacent[] = {mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[0]].m_opp].m_face,mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[1]].m_opp].m_face,mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[2]].m_opp].m_face};
-					for (auto a : adjacent) {
-						if (!faceProcessed[a] && !mesh.m_faces[a].isDisabled()) {
-							faceStack.push_back(a);
-						}
-					}
-					auto vertices = mesh.getVertexIndicesOfFace(mesh.m_faces[top]);
-					for (auto& v : vertices) {
-						auto it = vertexIndexMapping.find(v);
-						if (it == vertexIndexMapping.end()) {
-							m_vertices.push_back(pointCloud[v]);
-							vertexIndexMapping[v] = m_vertices.size()-1;
-							v = m_vertices.size()-1;
-						}
-						else {
-							v = it->second;
-						}
-					}
-					m_indices.push_back(vertices[0]);
-					if (CCW) {
-						m_indices.push_back(vertices[2]);
-						m_indices.push_back(vertices[1]);
-					}
-					else {
-						m_indices.push_back(vertices[1]);
-						m_indices.push_back(vertices[2]);
-					}
-					faceProcessed[top]=true;
-				}
-			}
+            if(pointCloudRelative) {
+                while (faceStack.size()) {
+                    auto it = faceStack.end() - 1;
+                    size_t top = *it;
+                    assert(!mesh.m_faces[top].isDisabled());
+                    faceStack.erase(it);
+                    if (faceProcessed[top]) {
+                        continue;
+                    }
+                    else {
+                        auto halfEdges = mesh.getHalfEdgeIndicesOfFace(mesh.m_faces[top]);
+                        size_t adjacent[] = {mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[0]].m_opp].m_face,
+                                             mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[1]].m_opp].m_face,
+                                             mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[2]].m_opp].m_face};
+                        for (auto a : adjacent) {
+                            if (!faceProcessed[a] && !mesh.m_faces[a].isDisabled()) {
+                                faceStack.push_back(a);
+                            }
+                        }
+                        auto vertices = mesh.getVertexIndicesOfFace(mesh.m_faces[top]);
+                        m_indices.push_back(vertices[0]);
+                        if (CCW) {
+                            m_indices.push_back(vertices[1]);
+                            m_indices.push_back(vertices[2]);
+                        }
+                        else {
+                            m_indices.push_back(vertices[2]);
+                            m_indices.push_back(vertices[1]);
+                        }
+                        faceProcessed[top] = true;
+                    }
+                }
+
+            } else {
+                while (faceStack.size()) {
+                    auto it = faceStack.end()-1;
+                    size_t top = *it;
+                    assert(!mesh.m_faces[top].isDisabled());
+                    faceStack.erase(it);
+                    if (faceProcessed[top]) {
+                        continue;
+                    }
+                    else {
+                        auto halfEdges = mesh.getHalfEdgeIndicesOfFace(mesh.m_faces[top]);
+                        size_t adjacent[] = {mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[0]].m_opp].m_face,mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[1]].m_opp].m_face,mesh.m_halfEdges[mesh.m_halfEdges[halfEdges[2]].m_opp].m_face};
+                        for (auto a : adjacent) {
+                            if (!faceProcessed[a] && !mesh.m_faces[a].isDisabled()) {
+                                faceStack.push_back(a);
+                            }
+                        }
+                        auto vertices = mesh.getVertexIndicesOfFace(mesh.m_faces[top]);
+                        for (auto& v : vertices) {
+                            auto it = vertexIndexMapping.find(v);
+                            if (it == vertexIndexMapping.end()) {
+                                m_vertices.push_back(pointCloud[v]);
+                                vertexIndexMapping[v] = m_vertices.size()-1;
+                                v = m_vertices.size()-1;
+                            }
+                            else {
+                                v = it->second;
+                            }
+                        }
+                        m_indices.push_back(vertices[0]);
+                        if (CCW) {
+                            m_indices.push_back(vertices[2]);
+                            m_indices.push_back(vertices[1]);
+                        }
+                        else {
+                            m_indices.push_back(vertices[1]);
+                            m_indices.push_back(vertices[2]);
+                        }
+                        faceProcessed[top]=true;
+                    }
+                }
+            }
 		}
 
 		std::vector<size_t>& getIndexBuffer() {
