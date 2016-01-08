@@ -87,20 +87,20 @@ namespace quickhull {
 		void createConvexHalfEdgeMesh();
 		
 		// The public getConvexHull functions will setup a VertexDataSource object and call this
-		ConvexHull<T> getConvexHull(const VertexDataSource<T>& pointCloud, bool CCW);
+		ConvexHull<T> getConvexHull(const VertexDataSource<T>& pointCloud, bool CCW, bool pointCloudRelative = false);
 	public:
 		// Computes convex hull for a given point cloud.
 		// Params:
 		//   pointCloud: a vector of of 3D points
 		//   CCW: whether the output mesh triangles should have CCW orientation
-		ConvexHull<T> getConvexHull(const std::vector<Vector3<T>>& pointCloud, bool CCW);
+		ConvexHull<T> getConvexHull(const std::vector<Vector3<T>>& pointCloud, bool CCW, bool pointCloudRelative = false);
 		
 		// Computes convex hull for a given point cloud.
 		// Params:
 		//   vertexData: pointer to the first 3D point of the point cloud
 		//   vertexCount: number of vertices in the point cloud
 		//   CCW: whether the output mesh triangles should have CCW orientation
-		ConvexHull<T> getConvexHull(const Vector3<T>* vertexData, size_t vertexCount, bool CCW);
+		ConvexHull<T> getConvexHull(const Vector3<T>* vertexData, size_t vertexCount, bool CCW, bool pointCloudRelative = false);
 		
 		// Computes convex hull for a given point cloud. This function assumes that the vertex data resides in memory
 		// in the following way: x_0,y_0,z_0,x_1,y_1,z_1,...
@@ -108,7 +108,7 @@ namespace quickhull {
 		//   vertexData: pointer to the X component of the first point of the point cloud.
 		//   vertexCount: number of vertices in the point cloud
 		//   CCW: whether the output mesh triangles should have CCW orientation
-		ConvexHull<T> getConvexHull(const T* vertexData, size_t vertexCount, bool CCW);
+		ConvexHull<T> getConvexHull(const T* vertexData, size_t vertexCount, bool CCW, bool pointCloudRelative = false);
 	};
 
 }

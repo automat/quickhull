@@ -22,25 +22,25 @@ namespace quickhull {
 	 */
 	
 	template<typename T>
-	ConvexHull<T> QuickHull<T>::getConvexHull(const std::vector<Vector3<T>>& pointCloud, bool CCW) {
+	ConvexHull<T> QuickHull<T>::getConvexHull(const std::vector<Vector3<T>>& pointCloud, bool CCW, bool pointCloudRelative) {
 		VertexDataSource<T> vertexDataSource(pointCloud);
-		return getConvexHull(vertexDataSource,CCW);
+		return getConvexHull(vertexDataSource,CCW,pointCloudRelative);
 	}
 	
 	template<typename T>
-	ConvexHull<T> QuickHull<T>::getConvexHull(const Vector3<T>* vertexData, size_t vertexCount, bool CCW) {
+	ConvexHull<T> QuickHull<T>::getConvexHull(const Vector3<T>* vertexData, size_t vertexCount, bool CCW, bool pointCloudRelative) {
 		VertexDataSource<T> vertexDataSource(vertexData,vertexCount);
-		return getConvexHull(vertexDataSource,CCW);
+		return getConvexHull(vertexDataSource,CCW,pointCloudRelative);
 	}
 	
 	template<typename T>
-	ConvexHull<T> QuickHull<T>::getConvexHull(const T* vertexData, size_t vertexCount, bool CCW) {
+	ConvexHull<T> QuickHull<T>::getConvexHull(const T* vertexData, size_t vertexCount, bool CCW, bool pointCloudRelative) {
 		VertexDataSource<T> vertexDataSource((const Vector3<T>*)vertexData,vertexCount);
-		return getConvexHull(vertexDataSource,CCW);
+		return getConvexHull(vertexDataSource,CCW,pointCloudRelative);
 	}
 
 	template<typename T>
-	ConvexHull<T> QuickHull<T>::getConvexHull(const VertexDataSource<T>& pointCloud, bool CCW) {
+	ConvexHull<T> QuickHull<T>::getConvexHull(const VertexDataSource<T>& pointCloud, bool CCW, bool pointCloudRelative) {
 		if (pointCloud.size()==0) {
 			return ConvexHull<T>();
 		}
@@ -69,7 +69,7 @@ namespace quickhull {
 		}
 		
 		createConvexHalfEdgeMesh();
-		return ConvexHull<T>(m_mesh,m_vertexData, CCW);
+		return ConvexHull<T>(m_mesh,m_vertexData, CCW, pointCloudRelative);
 	}
 
 	template<typename T>
